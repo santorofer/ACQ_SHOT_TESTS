@@ -1,7 +1,21 @@
+"""
+D-Tacq ACQ2106 with ACQ435 Digitizers (up to 6)  real time streaming support.
+
+This code does some kind of QA test of the different sample rates that the ACQ can run.
+For each SR, starting at 4KHz to 16KHz, a consecutive series of shots at each freq. is done.
+The trigger is hardware, done by connecting to the Func. Generator using it's REST API.
+
+"""
+
 import MDSplus
 import time
 import sys
 import requests
+
+#Func. Generator:
+target   = 'http://172.20.240.19/Include/WebControlMethod.asp'
+#Pressing the trigger button is done using the following load:
+pay_load = 'queryID=1&queryMode=SetKey&queryInput=Trigger'
 
 timesleep = 60 #secs
 tree = MDSplus.Tree('daqtest', -1)
@@ -10,10 +24,10 @@ node = tree.ACQ2106_4353.NODE.data()
 print("Open daqtest tree {}".format(tree))
 print("TRIG_MODE {}".format(str(tree.ACQ2106_4353.TRIG_MODE.data())))
 
-f_4000 = [4000 for i in range(10)]
-f_5000 = [5000 for i in range(10)]
-f_6000 = [6000 for i in range(10)]
-f_8000 = [8000 for i in range(10)]
+f_4000  = [4000 for i in range(10)]
+f_5000  = [5000 for i in range(10)]
+f_6000  = [6000 for i in range(10)]
+f_8000  = [8000 for i in range(10)]
 f_10000 = [10000 for i in range(10)]
 f_12000 = [12000 for i in range(10)]
 f_16000 = [16000 for i in range(10)]
@@ -49,7 +63,7 @@ for idenx, frequencies in enumerate(freq_lists):
         tree.ACQ2106_4353.init()
 
         time.sleep(10)
-        response = requests.post('http://172.20.240.19/Include/WebControlMethod.asp', 'queryID=1&queryMode=SetKey&queryInput=Trigger')
+        response = requests.post(target, pay_load)
         print("FG trigger button was pressed {}".format(response))
 
         for remaining in range(timesleep, 0, -1):
